@@ -31,10 +31,16 @@ jobs:
           gzip -9 < Packages > dists/stable/main/binary-amd64/Packages.gz
           rm -f Packages
 
+      - name: Clean temp .deb
+        run: |
+          rm -rf pool
+
       - name: Commit & Push
         run: |
           git config user.name "orb-bot"
           git config user.email "noreply@orbproject.org"
-          git add .
-          git commit -m "Update APT repo for OrbProject ${{ github.event.client_payload.version }}" || echo "No changes"
+
+          git add dists
+          git commit -m "Update APT index for OrbProject ${{ github.event.client_payload.version }}" || echo "No changes"
           git push
+
