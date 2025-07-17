@@ -16,12 +16,12 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Télécharger le .deb depuis la release
-        env:
-          VERSION: ${{ github.event.client_payload.version }}
         run: |
-          mkdir -p pool
-          DEB_URL="https://github.com/OrbProject/OrbProjectLinux/releases/download/${VERSION}/orbproject_${VERSION#v}_amd64.deb"
-          curl -fL "$DEB_URL" -o "pool/orbproject_${VERSION#v}_amd64.deb"
+          VERSION=${{ env.VERSION }}
+          DEB_NAME="orbproject_${VERSION#v}_amd64.deb"
+          curl -L -o "$DEB_NAME" "https://github.com/OrbProject/OrbProjectLinux/releases/download/${VERSION}/$DEB_NAME"
+        env:
+          VERSION: ${{ env.VERSION }}
 
       - name: Générer index APT
         run: |
