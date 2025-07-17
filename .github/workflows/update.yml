@@ -25,11 +25,17 @@ jobs:
 
       - name: Générer index APT
         run: |
-          mkdir -p dists/stable/main/binary-amd64
-
-          dpkg-scanpackages pool /dev/null > Packages
-          gzip -9 < Packages > dists/stable/main/binary-amd64/Packages.gz
-          rm -f Packages
+          DEB_NAME=$(basename "$DEB_FILE")
+          BASE_URL="https://github.com/${{ github.repository }}/releases/download/${VERSION}/$DEB_NAME"
+          
+          # Génère Packages
+          mkdir temp-deb-dir
+          cp "$DEB_FILE" temp-deb-dir/
+          dpkg-scanpackages temp-deb-dir /dev/null > Packages
+          
+          # Corrige Filename et ajoute URI (obligatoire pour URLs externes)
+          sed -i "s|^Filename:.*|Filename: $DEB_NAME\nURI: $BASE_URL|g" Packages
+          gzip -9 < Packages > apt-repo/dists/stable/main/binary-amd64/Packages.gz
 
       - name: Clean temp .deb
         run: |
@@ -43,4 +49,6 @@ jobs:
           git add dists
           git commit -m "Update APT index for OrbProject ${{ github.event.client_payload.version }}" || echo "No changes"
           git push
+
+          
 
