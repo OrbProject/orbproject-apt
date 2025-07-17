@@ -1,0 +1,40 @@
+name: Update APT Repository
+
+on:
+  repository_dispatch:
+    types: [update_apt_repo]
+
+permissions:
+  contents: write
+
+jobs:
+  update-apt:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout apt-repo
+        uses: actions/checkout@v4
+
+      - name: Télécharger le .deb depuis la release
+        env:
+          VERSION: ${{ github.event.client_payload.version }}
+        run: |
+          mkdir -p pool
+          DEB_URL="https://github.com/OrbProject/OrbProjectLinux/releases/download/${VERSION}/orbproject_${VERSION#v}_amd64.deb"
+          curl -fL "$DEB_URL" -o "pool/orbproject_${VERSION#v}_amd64.deb"
+
+      - name: Générer index APT
+        run: |
+          mkdir -p dists/stable/main/binary-amd64
+
+          dpkg-scanpackages pool /dev/null > Packages
+          gzip -9 < Packages > dists/stable/main/binary-amd64/Packages.gz
+          rm -f Packages
+
+      - name: Commit & Push
+        run: |
+          git config user.name "orb-bot"
+          git config user.email "noreply@orbproject.org"
+          git add .
+          git commit -m "Update APT repo for OrbProject ${{ github.event.client_payload.version }}" || echo "No changes"
+          git push
