@@ -20,12 +20,21 @@ jobs:
 
       - name: Download .deb depuis release du repo principal
         run: |
+          # Télécharger le .deb depuis la release GitHub principale
           DEB_NAME="orbproject_${VERSION}_amd64.deb"
-          curl -L -o "$DEB_NAME" \
-            "https://github.com/OrbProject/OrbProjectLinux/releases/download/v${VERSION}/$DEB_NAME"
-          echo "DEB_FILE=$DEB_NAME" >> $GITHUB_ENV
-          ls -lh orbproject_*.deb
-          file orbproject_*.deb
+          DEB_URL="https://github.com/OrbProject/OrbProjectLinux/releases/download/v${VERSION}/${DEB_NAME}"
+          
+          echo "🔽 Téléchargement de $DEB_URL"
+          curl -fL -o "$DEB_NAME" "$DEB_URL" || {
+            echo "❌ ERREUR : téléchargement échoué depuis $DEB_URL"
+            exit 1
+          }
+
+          # Vérification basique
+          echo "🧪 Fichier téléchargé :"
+          file "$DEB_NAME"
+          ls -lh "$DEB_NAME"
+
 
       - name: Générer index APT
         run: |
