@@ -4,6 +4,9 @@ on:
   repository_dispatch:
     types: [update_apt_repo]
 
+    env:
+      VERSION: ${{ github.event.client_payload.version }}
+
 permissions:
   contents: write
 
