@@ -19,9 +19,9 @@ jobs:
         run: |
           VERSION=${{ env.VERSION }}
           DEB_NAME="orbproject_${VERSION#v}_amd64.deb"
-          curl -L -o "$DEB_NAME" "https://github.com/OrbProject/OrbProjectLinux/releases/download/${VERSION}/$DEB_NAME"
-        env:
-          VERSION: ${{ env.VERSION }}
+          curl -fL -o "$DEB_NAME" "https://github.com/OrbProject/OrbProjectLinux/releases/download/${VERSION}/$DEB_NAME"
+          echo "DEB_FILE=$DEB_NAME" >> $GITHUB_ENV
+
 
       - name: Générer index APT
         run: |
