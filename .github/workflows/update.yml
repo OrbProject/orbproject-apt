@@ -22,8 +22,10 @@ jobs:
         run: |
           DEB_NAME="orbproject_${VERSION}_amd64.deb"
           curl -L -o "$DEB_NAME" \
-            "https://github.com/OrbProject/OrbProjectLinux/releases/download/${VERSION}/$DEB_NAME"
+            "https://github.com/OrbProject/OrbProjectLinux/releases/download/v${VERSION}/$DEB_NAME"
           echo "DEB_FILE=$DEB_NAME" >> $GITHUB_ENV
+          ls -lh orbproject_*.deb
+          file orbproject_*.deb
 
       - name: Générer index APT
         run: |
@@ -31,7 +33,7 @@ jobs:
           cp "$DEB_FILE" temp-deb-dir/
           dpkg-scanpackages temp-deb-dir /dev/null > Packages
 
-          BASE_URL="https://github.com/OrbProject/OrbProjectLinux/releases/download/${VERSION}/$DEB_FILE"
+          BASE_URL="https://github.com/OrbProject/OrbProjectLinux/releases/download/v${VERSION}/$DEB_FILE"
           sed -i "s|^Filename:.*|Filename: $DEB_FILE\nURI: $BASE_URL|" Packages
 
           mkdir -p dists/stable/main/binary-amd64
