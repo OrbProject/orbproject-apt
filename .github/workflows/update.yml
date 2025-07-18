@@ -42,7 +42,7 @@ jobs:
           git config user.name "orb-bot"
           git config user.email "orb-bot@orbproject.org"
           git add dists/
-          git commit -m "Update APT repo for OrbProject v${VERSION}"
+          git commit -m "Update APT repo for OrbProject ${VERSION}"
           git push
 
           
