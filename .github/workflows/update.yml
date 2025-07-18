@@ -12,13 +12,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Get version from event
+        run: echo "VERSION=${{ github.event.client_payload.version }}" >> $GITHUB_ENV
+
       - name: Checkout apt-repo
         uses: actions/checkout@v4
-
-      - name: Extraire la version depuis le dernier tag
-        run: |
-          VERSION=$(git describe --tags --abbrev=0)
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
 
 
       - name: Télécharger le .deb depuis la release
