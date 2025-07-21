@@ -4,25 +4,21 @@ on:
   repository_dispatch:
     types: [update_apt_repo]
 
-    env:
-      VERSION: ${{ github.event.client_payload.version }}
-
 permissions:
   contents: write
 
 jobs:
   update-apt:
     runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ github.event.client_payload.version }}
 
     steps:
-      - name: Extraire la version
-        run: echo "VERSION=${{ github.event.client_payload.version }}" >> $GITHUB_ENV
+      - name: Checkout apt-repo
+        uses: actions/checkout@v4
 
       - name: Afficher la version
         run: echo "La version transmise est $VERSION"
-
-      - name: Checkout apt-repo
-        uses: actions/checkout@v4
 
       - name: Download .deb depuis release du repo principal
         run: |
