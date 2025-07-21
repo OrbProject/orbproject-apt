@@ -20,24 +20,14 @@ jobs:
       - name: Afficher la version
         run: echo "La version transmise est $VERSION"
 
-      - name: Download .deb depuis release du repo principal
+      - name: Télécharger le .deb depuis la release
         run: |
-          # Télécharger le .deb depuis la release GitHub principale
-          DEB_NAME="orbproject_${VERSION}_amd64.deb"
-          DEB_URL="https://github.com/OrbProject/OrbProjectLinux/releases/download/v${VERSION}/${DEB_NAME}"
-          
-          echo "🔽 Téléchargement de $DEB_URL"
-          curl -fL -o "$DEB_NAME" "$DEB_URL" || {
-            echo "❌ ERREUR : téléchargement échoué depuis $DEB_URL"
-            exit 1
-          }
-
-          # Vérification basique
-          echo "🧪 Fichier téléchargé :"
-          file "$DEB_NAME"
-          ls -lh "$DEB_NAME"
-
-
+          DEB_FILE="orbproject_${VERSION}_amd64.deb"
+          curl -L -o "$DEB_FILE" "https://github.com/OrbProject/OrbProjectLinux/releases/download/v${VERSION}/$DEB_FILE"
+          echo "DEB_FILE=$DEB_FILE" >> $GITHUB_ENV
+        env:
+          VERSION: ${{ env.VERSION }}
+      
       - name: Générer index APT
         run: |
           mkdir -p temp-deb-dir
@@ -49,6 +39,9 @@ jobs:
 
           mkdir -p dists/stable/main/binary-amd64
           gzip -9 < Packages > dists/stable/main/binary-amd64/Packages.gz
+        env:
+          DEB_FILE: ${{ env.DEB_FILE }}
+          VERSION: ${{ env.VERSION }}
 
       - name: Commit & Push
         run: |
