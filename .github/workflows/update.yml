@@ -15,8 +15,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Get version from event
+      - name: Extraire la version
         run: echo "VERSION=${{ github.event.client_payload.version }}" >> $GITHUB_ENV
+
+      - name: Afficher la version
+        run: echo "La version transmise est $VERSION"
 
       - name: Checkout apt-repo
         uses: actions/checkout@v4
