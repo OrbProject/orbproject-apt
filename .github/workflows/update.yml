@@ -24,7 +24,7 @@ jobs:
         run: |
           # Télécharger le .deb depuis la release GitHub principale
           DEB_NAME="orbproject_${VERSION}_amd64.deb"
-          DEB_URL="https://github.com/OrbProject/OrbProjectLinux/releases/download/v${VERSION}/${DEB_NAME}"
+          DEB_URL="https://github.com/OrbProject/OrbProjectLinux/releases/download/${VERSION}/${DEB_NAME}"
           
           echo "🔽 Téléchargement de $DEB_URL"
           curl -fL -o "$DEB_NAME" "$DEB_URL" || {
@@ -44,7 +44,7 @@ jobs:
           cp "$DEB_FILE" temp-deb-dir/
           dpkg-scanpackages temp-deb-dir /dev/null > Packages
 
-          BASE_URL="https://github.com/OrbProject/OrbProjectLinux/releases/download/v${VERSION}/$DEB_FILE"
+          BASE_URL="https://github.com/OrbProject/OrbProjectLinux/releases/download/${VERSION}/$DEB_FILE"
           sed -i "s|^Filename:.*|Filename: $DEB_FILE\nURI: $BASE_URL|" Packages
 
           mkdir -p dists/stable/main/binary-amd64
