@@ -16,32 +16,36 @@ jobs:
       DEB_FILE: orbproject_${{ github.event.client_payload.version }}_amd64.deb
 
     steps:
-      - name: Set up repository
+      - name: Initialiser le dépôt (gh-pages si absent)
         run: |
           git init
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git remote add origin https://github.com/OrbProject/orbproject-apt.git
+
           if git ls-remote --exit-code --heads origin gh-pages; then
             git fetch origin gh-pages
             git checkout gh-pages
           else
             git checkout --orphan gh-pages
-            echo "gh-pages created"
+            echo "# orbproject-apt" > README.md
+            git add README.md
+            git commit -m "Init gh-pages"
+            git push origin gh-pages
           fi
-          
-      - name: Checkout apt-repo
+
+      - name: Checkout gh-pages
         uses: actions/checkout@v3
         with:
           ref: gh-pages
-          fetch-depth: 0 
+          fetch-depth: 0
 
-      - name: Download .deb depuis release GitHub
+      - name: Télécharger le .deb depuis la release GitHub
         run: |
           mkdir -p downloads
           curl -L -o downloads/$DEB_FILE https://github.com/OrbProject/OrbProjectLinux/releases/download/v${VERSION}/$DEB_FILE
 
-      - name: Générer index APT
+      - name: Générer l’arborescence APT
         run: |
           mkdir -p repo/{dists/stable/main/binary-amd64,pool/main/o/orbproject}
           cp downloads/$DEB_FILE repo/pool/main/o/orbproject/
@@ -49,7 +53,7 @@ jobs:
           dpkg-scanpackages repo/pool /dev/null > repo/dists/stable/main/binary-amd64/Packages
           gzip -k -f repo/dists/stable/main/binary-amd64/Packages
 
-      - name: Commit & Push to gh-pages
+      - name: Commit & Push vers gh-pages
         run: |
           cp -r repo/* .
           git config user.name "github-actions"
@@ -57,5 +61,3 @@ jobs:
           git add .
           git commit -m "Update APT repo with version $VERSION"
           git push origin gh-pages
-          
-
