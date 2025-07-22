@@ -14,48 +14,36 @@ jobs:
       DEB_NAME: orbproject
       VERSION: ${{ github.event.client_payload.version }}
       DEB_FILE: orbproject_${{ github.event.client_payload.version }}_amd64.deb
-      RELEASE_URL: https://github.com/OrbProject/OrbProjectLinux/releases/download/v${{ github.event.client_payload.version }}
+      DEB_URL: https://github.com/OrbProject/OrbProjectLinux/releases/download/v${{ github.event.client_payload.version }}/orbproject_${{ github.event.client_payload.version }}_amd64.deb
 
     steps:
-      - name: Checkout gh-pages
+      - name: Checkout apt-repo
         uses: actions/checkout@v3
         with:
           ref: gh-pages
           fetch-depth: 0
 
-      - name: Préparer l'arborescence APT
+      - name: Download .deb depuis release GitHub
         run: |
-          mkdir -p repo/dists/stable/main/binary-amd64
-          mkdir -p repo/pool/main/o/orbproject
+          mkdir -p downloads
+          curl -L -o downloads/$DEB_FILE $DEB_URL
 
-      - name: Générer le fichier Packages
+      - name: Générer index APT avec URL GitHub
         run: |
-          cat <<EOF > repo/dists/stable/main/binary-amd64/Packages
-          Package: orbproject
-          Version: $VERSION
-          Architecture: amd64
-          Maintainer: orbProject <noreply@orbprojectmanagement.com>
-          Installed-Size: 610785
-          Depends: libgtk-3-0, libnss3
-          Filename: $RELEASE_URL/$DEB_FILE
-          Size: 164178022
-          MD5sum: 139f402f18e035ce847c86b134ebb11f
-          SHA1: d5bd200768ba270e8215a17b9da31e75d9b0ca8b
-          SHA256: 548fd0f2f8cb1f56333b89559bb5d4c37fa2378c5b9eb8427fa3432f3c394847
-          Section: default
-          Priority: optional
-          Homepage: https://github.com/OrbProject/OrbProjectLinux
-          Description: Orb Project Management
-          License: MIT
-          Vendor: none
-          EOF
+          mkdir -p repo/{dists/stable/main/binary-amd64,pool/main/o/orbproject}
+          cp downloads/$DEB_FILE repo/pool/main/o/orbproject/
+
+          dpkg-scanpackages repo/pool /dev/null | \
+            sed "s|^Filename:.*|Filename: $DEB_URL|" \
+            > repo/dists/stable/main/binary-amd64/Packages
+
           gzip -k -f repo/dists/stable/main/binary-amd64/Packages
 
-      - name: Commit & Push vers gh-pages
+      - name: Commit & Push to gh-pages
         run: |
           cp -r repo/* .
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git add dists/
-          git commit -m "Update APT repo metadata for version $VERSION" || echo "Nothing to commit"
+          git add .
+          git commit -m "Update APT repo with version $VERSION"
           git push origin gh-pages
