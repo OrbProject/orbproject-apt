@@ -39,6 +39,11 @@ jobs:
 
           gzip -k -f repo/dists/stable/main/binary-amd64/Packages
 
+      - name: Ignore .deb files
+        run: |
+          echo "downloads/" >> .gitignore
+          echo "*.deb" >> .gitignore
+
       - name: Commit & Push to gh-pages
         run: |
           cp -r repo/dists ./
