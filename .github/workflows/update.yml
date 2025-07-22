@@ -41,7 +41,8 @@ jobs:
 
       - name: Commit & Push to gh-pages
         run: |
-          cp -r repo/* .
+          cp -r repo/dists ./
+          cp -r repo/pool ./
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add .
