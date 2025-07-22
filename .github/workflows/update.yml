@@ -11,45 +11,36 @@ jobs:
   update-apt:
     runs-on: ubuntu-latest
     env:
+      DEB_NAME: orbproject
       VERSION: ${{ github.event.client_payload.version }}
+      DEB_FILE: orbproject_${{ github.event.client_payload.version }}_amd64.deb
 
     steps:
       - name: Checkout apt-repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
+        with:
+          ref: gh-pages
 
-      - name: Afficher la version
-        run: echo "La version transmise est $VERSION"
-
-      - name: Télécharger le .deb depuis la release
+      - name: Download .deb depuis release GitHub
         run: |
-          DEB_FILE="orbproject_${VERSION}_amd64.deb"
-          curl -L -o "$DEB_FILE" "https://github.com/OrbProject/OrbProjectLinux/releases/download/v${VERSION}/$DEB_FILE"
-          echo "DEB_FILE=$DEB_FILE" >> $GITHUB_ENV
-        env:
-          VERSION: ${{ env.VERSION }}
-      
+          mkdir -p downloads
+          curl -L -o downloads/$DEB_FILE https://github.com/OrbProject/OrbProjectLinux/releases/download/v${VERSION}/$DEB_FILE
+
       - name: Générer index APT
         run: |
-          mkdir -p temp-deb-dir
-          cp "$DEB_FILE" temp-deb-dir/
-          dpkg-scanpackages temp-deb-dir /dev/null > Packages
+          mkdir -p repo/{dists/stable/main/binary-amd64,pool/main/o/orbproject}
+          cp downloads/$DEB_FILE repo/pool/main/o/orbproject/
 
-          BASE_URL="https://github.com/OrbProject/OrbProjectLinux/releases/download/v${VERSION}/$DEB_FILE"
-          sed -i "s|^Filename:.*|Filename: $DEB_FILE\nURI: $BASE_URL|" Packages
+          dpkg-scanpackages repo/pool /dev/null > repo/dists/stable/main/binary-amd64/Packages
+          gzip -k -f repo/dists/stable/main/binary-amd64/Packages
 
-          mkdir -p dists/stable/main/binary-amd64
-          gzip -9 < Packages > dists/stable/main/binary-amd64/Packages.gz
-        env:
-          DEB_FILE: ${{ env.DEB_FILE }}
-          VERSION: ${{ env.VERSION }}
-
-      - name: Commit & Push
+      - name: Commit & Push to gh-pages
         run: |
-          git config user.name "orb-bot"
-          git config user.email "orb-bot@orbproject.org"
-          git add dists/
-          git commit -m "Update APT repo for OrbProject ${VERSION}"
-          git push
-
+          cp -r repo/* .
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add .
+          git commit -m "Update APT repo with version $VERSION"
+          git push origin gh-pages
           
 
