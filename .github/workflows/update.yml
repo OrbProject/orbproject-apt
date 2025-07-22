@@ -20,6 +20,15 @@ jobs:
         uses: actions/checkout@v3
         with:
           ref: gh-pages
+          fetch-depth: 0 
+
+      - name: Init gh-pages if absent
+        run: |
+          if [ ! -d ".git" ]; then
+            git init
+            git checkout -b gh-pages
+            git remote add origin https://github.com/OrbProject/orbproject-apt.git
+          fi
 
       - name: Download .deb depuis release GitHub
         run: |
