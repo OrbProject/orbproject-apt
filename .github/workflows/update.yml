@@ -22,7 +22,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git remote add origin https://github.com/OrbProject/orbproject-apt.git
-
+      
           if git ls-remote --exit-code --heads origin gh-pages; then
             git fetch origin gh-pages
             git checkout gh-pages
@@ -31,6 +31,7 @@ jobs:
             echo "# orbproject-apt" > README.md
             git add README.md
             git commit -m "Init gh-pages"
+            git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/OrbProject/orbproject-apt.git
             git push origin gh-pages
           fi
 
