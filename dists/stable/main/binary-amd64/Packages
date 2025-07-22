@@ -4,8 +4,7 @@ Architecture: amd64
 Maintainer: orbProject <noreply@orbprojectmanagement.com>
 Installed-Size: 610785
 Depends: libgtk-3-0, libnss3
-Filename: orbproject_0.0.1_amd64.deb
-URI: https://github.com/OrbProject/OrbProjectLinux/releases/download/v0.0.1/orbproject_0.0.1_amd64.deb
+Filename: https://github.com/OrbProject/OrbProjectLinux/releases/download/v0.0.1/orbproject_0.0.1_amd64.deb
 Size: 164178022
 MD5sum: 139f402f18e035ce847c86b134ebb11f
 SHA1: d5bd200768ba270e8215a17b9da31e75d9b0ca8b
