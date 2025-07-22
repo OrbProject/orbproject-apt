@@ -16,19 +16,25 @@ jobs:
       DEB_FILE: orbproject_${{ github.event.client_payload.version }}_amd64.deb
 
     steps:
+      - name: Set up repository
+        run: |
+          git init
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git remote add origin https://github.com/OrbProject/orbproject-apt.git
+          if git ls-remote --exit-code --heads origin gh-pages; then
+            git fetch origin gh-pages
+            git checkout gh-pages
+          else
+            git checkout --orphan gh-pages
+            echo "gh-pages created"
+          fi
+          
       - name: Checkout apt-repo
         uses: actions/checkout@v3
         with:
           ref: gh-pages
           fetch-depth: 0 
-
-      - name: Init gh-pages if absent
-        run: |
-          if [ ! -d ".git" ]; then
-            git init
-            git checkout -b gh-pages
-            git remote add origin https://github.com/OrbProject/orbproject-apt.git
-          fi
 
       - name: Download .deb depuis release GitHub
         run: |
