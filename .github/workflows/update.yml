@@ -11,10 +11,10 @@ jobs:
   update-apt:
     runs-on: ubuntu-latest
     env:
-      DEB_NAME: orbproject
       VERSION: ${{ github.event.client_payload.version }}
+      DEB_NAME: orbproject
       DEB_FILE: orbproject_${{ github.event.client_payload.version }}_amd64.deb
-      DEB_URL: https://github.com/OrbProject/OrbProjectLinux/releases/download/v${{ github.event.client_payload.version }}/orbproject_${{ github.event.client_payload.version }}_amd64.deb
+      DOWNLOAD_URL: https://github.com/OrbProject/OrbProjectLinux/releases/download/v${{ github.event.client_payload.version }}/orbproject_${{ github.event.client_payload.version }}_amd64.deb
 
     steps:
       - name: Checkout apt-repo
@@ -26,30 +26,35 @@ jobs:
       - name: Download .deb depuis release GitHub
         run: |
           mkdir -p downloads
-          curl -L -o downloads/$DEB_FILE $DEB_URL
+          curl -L -o downloads/$DEB_FILE $DOWNLOAD_URL
 
-      - name: Générer index APT avec URL GitHub
+      - name: Générer index APT manuellement
         run: |
-          mkdir -p repo/{dists/stable/main/binary-amd64,pool/main/o/orbproject}
-          cp downloads/$DEB_FILE repo/pool/main/o/orbproject/
+          mkdir -p dists/stable/main/binary-amd64
+          
+          SIZE=$(stat -c%s "downloads/$DEB_FILE")
+          SHA256=$(sha256sum "downloads/$DEB_FILE" | cut -d ' ' -f1)
 
-          dpkg-scanpackages repo/pool /dev/null | \
-            sed "s|^Filename:.*|Filename: $DEB_URL|" \
-            > repo/dists/stable/main/binary-amd64/Packages
+          cat <<EOF > dists/stable/main/binary-amd64/Packages
+Package: $DEB_NAME
+Version: $VERSION
+Architecture: amd64
+Maintainer: OrbProject <noreply@orbproject.com>
+Installed-Size: 610785
+Depends: libgtk-3-0, libnss3
+Filename: $DOWNLOAD_URL
+Size: $SIZE
+SHA256: $SHA256
+Description: Orb Project Management
+Homepage: https://github.com/OrbProject/OrbProjectLinux
+EOF
 
-          gzip -k -f repo/dists/stable/main/binary-amd64/Packages
+          gzip -kf dists/stable/main/binary-amd64/Packages
 
-      - name: Ignore .deb files
+      - name: Commit and Push
         run: |
-          echo "downloads/" >> .gitignore
-          echo "*.deb" >> .gitignore
-
-      - name: Commit & Push to gh-pages
-        run: |
-          cp -r repo/dists ./
-          cp -r repo/pool ./
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git add .
-          git commit -m "Update APT repo with version $VERSION"
+          git add dists/
+          git commit -m "Update APT index for version $VERSION"
           git push origin gh-pages
