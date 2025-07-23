@@ -36,18 +36,18 @@ jobs:
           SHA256=$(sha256sum "downloads/$DEB_FILE" | cut -d ' ' -f1)
 
           cat <<EOF > dists/stable/main/binary-amd64/Packages
-Package: $DEB_NAME
-Version: $VERSION
-Architecture: amd64
-Maintainer: OrbProject <noreply@orbproject.com>
-Installed-Size: 610785
-Depends: libgtk-3-0, libnss3
-Filename: $DOWNLOAD_URL
-Size: $SIZE
-SHA256: $SHA256
-Description: Orb Project Management
-Homepage: https://github.com/OrbProject/OrbProjectLinux
-EOF
+          Package: $DEB_NAME
+          Version: $VERSION
+          Architecture: amd64
+          Maintainer: OrbProject <noreply@orbproject.com>
+          Installed-Size: 610785
+          Depends: libgtk-3-0, libnss3
+          Filename: $DOWNLOAD_URL
+          Size: $SIZE
+          SHA256: $SHA256
+          Description: Orb Project Management
+          Homepage: https://github.com/OrbProject/OrbProjectLinux
+          EOF
 
           gzip -kf dists/stable/main/binary-amd64/Packages
 
