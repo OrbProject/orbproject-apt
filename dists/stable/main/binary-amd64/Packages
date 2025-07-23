@@ -1,18 +1,11 @@
 Package: orbproject
 Version: 0.0.1
 Architecture: amd64
-Maintainer: orbProject <noreply@orbprojectmanagement.com>
+Maintainer: OrbProject <noreply@orbproject.com>
 Installed-Size: 610785
 Depends: libgtk-3-0, libnss3
 Filename: https://github.com/OrbProject/OrbProjectLinux/releases/download/v0.0.1/orbproject_0.0.1_amd64.deb
-Size: 164176968
-MD5sum: ad665d0f45c498b58167378e297d68d1
-SHA1: 9b4f530bdf1da526e97f545233445bee04819024
-SHA256: 429bb3547f39cbedd4fd1759150a73fedd4bcd3abdc24dabe15f3807bc5dc856
-Section: default
-Priority: optional
-Homepage: https://github.com/OrbProject/OrbProjectLinux
+Size: 164180732
+SHA256: 1c989077ec7c0bd50d78fe1196489566c0b95a907c881e484d69bf4e4470d863
 Description: Orb Project Management
-License: MIT
-Vendor: none
-
+Homepage: https://github.com/OrbProject/OrbProjectLinux
